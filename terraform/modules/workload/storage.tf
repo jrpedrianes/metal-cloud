@@ -8,7 +8,7 @@ resource "libvirt_pool" "volume_pool" {
 # Fetch the latest ubuntu release image from their mirrors
 # DISCLAIMER: Using Ubuntu/Debian because the author's obsession
 resource "libvirt_volume" "os_image" {
-  name   = "ubuntu-22.04.qcow2"
+  name   = "os-image-ubuntu-22.04.qcow2"
   source = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
   pool   = libvirt_pool.volume_pool.name
 }
@@ -89,7 +89,7 @@ resource "libvirt_cloudinit_disk" "cloud_init" {
 resource "libvirt_volume" "kube_disk" {
   for_each = var.instances
 
-  name           = join("", [each.key, ".qcow2"])
+  name           = join("", ["kube-disk-", each.key, ".qcow2"])
   base_volume_id = libvirt_volume.os_image.id
   pool           = libvirt_pool.volume_pool.name
 
