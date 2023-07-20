@@ -1,5 +1,4 @@
 locals {
-
   # Merge network fields for each instance network
   # This makes a trustable list by looking for each defined network in the networks definition
   instance_networks_expanded = {
@@ -33,6 +32,7 @@ locals {
     }
   }
 }
+
 # Create all instances
 resource "libvirt_domain" "instance" {
   for_each = var.instances
@@ -55,11 +55,8 @@ resource "libvirt_domain" "instance" {
     content {
       network_id = libvirt_network.nat[network.value["network_attachment"]["name"]].id
       hostname   = each.key
-      # Guest VM's virtualized network interface will claim the requested IP to the virtual NAT on the Host
-      # On the system level, the interface in Linux is configured in DHCP mode by using cloud-init
-      # WARNING: Addresses not in CIDR notation here
-      addresses      = [split("/", network.value["network_attachment"]["address"])[0]]
-      wait_for_lease = true
+      # Guest VM's virtualized network interface is connected to the virtual NAT on the Host
+      # At system level, the interface in Linux is configured in static mode by cloud-init
     }
   }
 
@@ -72,7 +69,7 @@ resource "libvirt_domain" "instance" {
       macvtap  = network.value["network_info"]["interface"]
       hostname = each.key
       # Guest virtualized network interface is connected directly to a physical device on the Host,
-      # As a result, requested IP address can only be claimed by the OS: Linux is configured in static mode by cloud-init
+      # At system level, the interface in Linux is configured in static mode by cloud-init
     }
   }
 

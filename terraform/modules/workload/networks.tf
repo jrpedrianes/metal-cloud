@@ -5,6 +5,7 @@ locals {
     i => v if v.mode == "nat"
   })
 }
+
 # Create all NAT networks
 # Ref: https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain#handling-network-interfaces
 resource "libvirt_network" "nat" {
@@ -15,9 +16,10 @@ resource "libvirt_network" "nat" {
   bridge = each.key
   domain = join(".", [each.key, "local"])
 
+  autostart = true
   addresses = each.value.dhcp_address_blocks
 
-  dhcp { enabled = true }
+  dhcp { enabled = false }
 
   dns {
     enabled    = true

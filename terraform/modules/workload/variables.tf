@@ -36,6 +36,7 @@ variable "instances" {
     networks = list(object({
       name    = string
       address = string
+      default = optional(bool, false)
     }))
   }))
   description = "Instances definition block"
